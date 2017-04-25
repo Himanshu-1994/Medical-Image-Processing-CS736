@@ -1,0 +1,408 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-01-29"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Que3</a></li><li><a href="#2">Convert all shapes to pre-shape space</a></li><li><a href="#3">Allign Points and Find Mean Shape</a></li><li><a href="#4">Plot of Original Point Set</a></li><li><a href="#5">Plot of mean shape with aligned point</a></li><li><a href="#6">Calculate and Plot Principal Modes Of Variation</a></li><li><a href="#7">Calculate and Plot Principal Modes Of Variation</a></li></ul></div><h2>Que3<a name="1"></a></h2><div><ul><li>Code for alignment of two point sets is in <b>'alignment.m'</b></li><li>Code for finding optimal mean shape per iteration is in <b>'optimal_mean.m'</b></li><li>Rest of the code including calculation of <b>'Modes of Variation'</b> is implemented below.</li></ul></div><pre class="codeinput">clear <span class="string">all</span>;
+load(<span class="string">'bone3D.mat'</span>);
+no_shapes = 30;
+no_points = 252;
+z = shapesTotal;
+z_a = z;
+</pre><h2>Convert all shapes to pre-shape space<a name="2"></a></h2><pre class="codeinput">T = sum(z,2)./no_shapes;
+zc = bsxfun(@minus,z,T);
+zs = reshape(zc,[3*no_points,no_shapes]);
+s = sqrt(sum(zs.^2));
+zpre = bsxfun(@rdivide,zs,s);
+zp = reshape(zpre,[3,no_points,no_shapes]);
+
+<span class="comment">%Initialze z_mean to one of the points</span>
+z_mean = sum(zp,3);
+s = sqrt(z_mean(:)'*z_mean(:));
+z_mean = z_mean./s;
+</pre><h2>Allign Points and Find Mean Shape<a name="3"></a></h2><pre class="codeinput">step = 1;
+iter = 0;
+
+<span class="keyword">while</span> step &gt; 10e-7
+
+    [zp,z_mean_opt]=optimal_mean(zp,z_mean);
+    a = bsxfun(@minus,zp,z_mean_opt);
+    error = sum(sum(sum(a.*a)));
+    step = sum(sum((z_mean-z_mean_opt).^2));
+    z_mean = z_mean_opt;
+    fprintf(<span class="string">'Iter = %d Change in position of z_mean is %d\n'</span>,iter,step);
+    iter = iter+1;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Iter = 0 Change in position of z_mean is 1.292017e-12
+</pre><h2>Plot of Original Point Set<a name="4"></a></h2><pre class="codeinput">K = no_points;
+N = no_shapes;
+figure();
+S = repmat(5,K,1)';
+no_points = 252;
+<span class="keyword">for</span> i =1:N
+C = repmat(rand(1,3),K,1);
+<span class="comment">%patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','interp','EdgeColor','b',...</span>
+<span class="comment">%    'FaceAlpha','1');</span>
+scatter3(z_a(1,:,i),z_a(2,:,i),z_a(3,:,i),S,C,<span class="string">'filled'</span>);
+hold <span class="string">on</span>;
+
+<span class="keyword">end</span>
+hold <span class="string">off</span>;
+title(<span class="string">'Orignal data points'</span>);
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <h2>Plot of mean shape with aligned point<a name="5"></a></h2><pre class="codeinput">figure();
+S = repmat(5,K,1)';
+<span class="keyword">for</span> i =1:N
+C = repmat(rand(1,3),K,1);
+scatter3(zp(1,:,i),zp(2,:,i),zp(3,:,i),S,C,<span class="string">'filled'</span>);
+hold <span class="string">on</span>;
+<span class="keyword">end</span>
+
+S = repmat(30,K,1)';
+C = repmat([0,0,1],K,1);
+<span class="comment">%scatter3(z_mean(1,:),z_mean(2,:),z_mean(3,:),S,C,'filled');</span>
+<span class="comment">%line(z_mean(1,:),z_mean(2,:),z_mean(3,:),'Color','r','Linewidth',1.5);</span>
+
+f2 = patch(<span class="string">'Vertices'</span>,z_mean',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'b'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>);
+
+view(3);
+hold <span class="string">off</span>;
+title(<span class="string">'Mean Shape and Aligned PointSets'</span>);
+</pre><img vspace="5" hspace="5" src="main_02.png" alt=""> <h2>Calculate and Plot Principal Modes Of Variation<a name="6"></a></h2><pre class="codeinput">a = bsxfun(@minus,zp,z_mean);
+x = [a(1,:,:) a(2,:,:) a(3,:,:)];
+x = reshape(x,[3*no_points,no_shapes]);
+Ca = (x*x')./no_shapes;
+[V,E] = eig(Ca);
+eig_values = diag(E);
+
+figure();
+plot(flipud(eig_values),<span class="string">'b'</span>);
+ylabel(<span class="string">'Magnitude'</span>);
+xlabel(<span class="string">'Eigen Values'</span>);
+title(<span class="string">'Plot of Variance (Eigen Values)'</span>);
+</pre><img vspace="5" hspace="5" src="main_03.png" alt=""> <h2>Calculate and Plot Principal Modes Of Variation<a name="7"></a></h2><pre class="codeinput">z_a = [z_mean(1,:) (z_mean(2,:)) (z_mean(3,:))]' ;
+
+ind = [756 755];
+<span class="keyword">for</span> i = 1:2
+
+pmv1=z_a-2*sqrt(eig_values(ind(i)))*V(:,ind(i));
+p = zeros(size(z_mean));
+p(1,:) = pmv1(1:end/3);
+p(2,:) = pmv1(end/3+1:2*end/3);
+p(3,:) = pmv1((2*end/3)+1:end);
+
+
+pmv2=z_a+2*sqrt(eig_values(ind(i)))*V(:,ind(i));
+p1 = zeros(size(z_mean));
+p1(1,:) = pmv2(1:end/3);
+p1(2,:) = pmv2(end/3+1:2*end/3);
+p1(3,:) = pmv2((2*end/3)+1:end);
+
+
+figure();
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[0 0 30 12]);
+subplot(1,3,1)
+f1 = patch(<span class="string">'Vertices'</span>,p',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'r'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.3'</span>);
+view([1,0.5,-0.5])
+hold <span class="string">on</span>
+subplot(1,3,2)
+f2 = patch(<span class="string">'Vertices'</span>,z_mean',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'b'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.3'</span>);
+view([1,0.5,-0.5])
+subplot(1,3,3)
+f3 = patch(<span class="string">'Vertices'</span>,p1',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'g'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'g'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.3'</span>);
+view([1,0.8,-0.5])
+legend([f1 f2 f3],<span class="string">'-2*{\surd}\lambda'</span>,<span class="string">'Mean'</span>,<span class="string">'+2*{\surd}\lambda'</span>)
+suptitle(strcat(<span class="string">'Modes of Variation for '</span>,<span class="string">' Eigen Value:'</span>,num2str(i),<span class="string">' = '</span>,num2str(eig_values(ind(i)))));
+
+hold <span class="string">off</span>;
+
+figure();
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[0 0 30 12]);
+f1 = patch(<span class="string">'Vertices'</span>,p',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'none'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'r'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'1'</span>);
+hold <span class="string">on</span>
+
+f2 = patch(<span class="string">'Vertices'</span>,z_mean',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'none'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'b'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'1'</span>);
+
+f3 = patch(<span class="string">'Vertices'</span>,p1',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'none'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'g'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.3'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'1'</span>);
+
+view([1 1 0])
+
+legend([f1 f2 f3],<span class="string">'-2*{\surd}\lambda'</span>,<span class="string">'Mean'</span>,<span class="string">'+2*{\surd}\lambda'</span>)
+title(strcat(<span class="string">'Modes of Variation for '</span>,<span class="string">' Eigen Value:'</span>,num2str(i),<span class="string">' = '</span>,num2str(eig_values(ind(i)))));
+
+figure();
+set(gcf,<span class="string">'units'</span>,<span class="string">'centimeters'</span>,<span class="string">'position'</span>,[0 0 25 15]);
+f1 = patch(<span class="string">'Vertices'</span>,p',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'r'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.5'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.6'</span>);
+view([1,0.5,-0.5])
+hold <span class="string">on</span>
+
+f2 = patch(<span class="string">'Vertices'</span>,z_mean',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'b'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.5'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.6'</span>);
+view([1,0.5,-0.5])
+
+f3 = patch(<span class="string">'Vertices'</span>,p1',<span class="string">'Faces'</span>,TriangleIndex,<span class="string">'FaceVertexCData'</span>,(1:252)',<span class="string">'FaceColor'</span>,<span class="string">'g'</span>,<span class="string">'EdgeColor'</span>,<span class="string">'g'</span>,<span class="keyword">...</span>
+    <span class="string">'FaceAlpha'</span>,<span class="string">'0.5'</span>,<span class="string">'EdgeAlpha'</span>,<span class="string">'0.6'</span>);
+view([1,0.8,-0.5])
+legend([f1 f2 f3],<span class="string">'-2*{\surd}\lambda'</span>,<span class="string">'Mean'</span>,<span class="string">'+2*{\surd}\lambda'</span>)
+suptitle(strcat(<span class="string">'Alligned PointSets and Modes of Variation for '</span>,<span class="string">' Eigen Value:'</span>,num2str(i),<span class="string">' = '</span>,num2str(eig_values(ind(i)))));
+
+S = repmat(6,K,1)';
+<span class="keyword">for</span> j =1:N
+C = repmat(rand(1,3),K,1);
+scatter3(zp(1,:,j),zp(2,:,j),zp(3,:,j),S,C,<span class="string">'filled'</span>);
+hold <span class="string">on</span>;
+<span class="keyword">end</span>
+hold <span class="string">off</span>;
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="main_04.png" alt=""> <img vspace="5" hspace="5" src="main_05.png" alt=""> <img vspace="5" hspace="5" src="main_06.png" alt=""> <img vspace="5" hspace="5" src="main_07.png" alt=""> <img vspace="5" hspace="5" src="main_08.png" alt=""> <img vspace="5" hspace="5" src="main_09.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Que3
+% 
+% * Code for alignment of two point sets is in *'alignment.m'*
+% * Code for finding optimal mean shape per iteration is in *'optimal_mean.m'*
+% * Rest of the code including calculation of *'Modes of Variation'* is implemented below.
+clear all;
+load('bone3D.mat');
+no_shapes = 30;
+no_points = 252;
+z = shapesTotal;
+z_a = z;
+
+%% Convert all shapes to pre-shape space
+
+T = sum(z,2)./no_shapes;
+zc = bsxfun(@minus,z,T);
+zs = reshape(zc,[3*no_points,no_shapes]);
+s = sqrt(sum(zs.^2));
+zpre = bsxfun(@rdivide,zs,s);
+zp = reshape(zpre,[3,no_points,no_shapes]);
+
+%Initialze z_mean to one of the points
+z_mean = sum(zp,3);
+s = sqrt(z_mean(:)'*z_mean(:));
+z_mean = z_mean./s;
+
+%% Allign Points and Find Mean Shape
+step = 1;
+iter = 0;
+
+while step > 10e-7
+    
+    [zp,z_mean_opt]=optimal_mean(zp,z_mean);
+    a = bsxfun(@minus,zp,z_mean_opt);
+    error = sum(sum(sum(a.*a)));
+    step = sum(sum((z_mean-z_mean_opt).^2));
+    z_mean = z_mean_opt;
+    fprintf('Iter = %d Change in position of z_mean is %d\n',iter,step);
+    iter = iter+1;
+end
+
+%% Plot of Original Point Set
+K = no_points;
+N = no_shapes;
+figure();
+S = repmat(5,K,1)';
+no_points = 252;
+for i =1:N
+C = repmat(rand(1,3),K,1);
+%patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','interp','EdgeColor','b',...
+%    'FaceAlpha','1');
+scatter3(z_a(1,:,i),z_a(2,:,i),z_a(3,:,i),S,C,'filled');
+hold on;
+
+end
+hold off;
+title('Orignal data points');
+
+%% Plot of mean shape with aligned point
+
+figure();
+S = repmat(5,K,1)';
+for i =1:N
+C = repmat(rand(1,3),K,1);
+scatter3(zp(1,:,i),zp(2,:,i),zp(3,:,i),S,C,'filled');
+hold on;
+end
+
+S = repmat(30,K,1)';
+C = repmat([0,0,1],K,1);
+%scatter3(z_mean(1,:),z_mean(2,:),z_mean(3,:),S,C,'filled');
+%line(z_mean(1,:),z_mean(2,:),z_mean(3,:),'Color','r','Linewidth',1.5);
+
+f2 = patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','b','EdgeColor','b',...
+    'FaceAlpha','0.3');
+
+view(3);
+hold off;
+title('Mean Shape and Aligned PointSets');
+
+%% Calculate and Plot Principal Modes Of Variation
+
+a = bsxfun(@minus,zp,z_mean);
+x = [a(1,:,:) a(2,:,:) a(3,:,:)];
+x = reshape(x,[3*no_points,no_shapes]);
+Ca = (x*x')./no_shapes;
+[V,E] = eig(Ca);
+eig_values = diag(E);
+
+figure();
+plot(flipud(eig_values),'b');
+ylabel('Magnitude');
+xlabel('Eigen Values');
+title('Plot of Variance (Eigen Values)');
+
+%% Calculate and Plot Principal Modes Of Variation
+
+z_a = [z_mean(1,:) (z_mean(2,:)) (z_mean(3,:))]' ;
+
+ind = [756 755];
+for i = 1:2
+
+pmv1=z_a-2*sqrt(eig_values(ind(i)))*V(:,ind(i));
+p = zeros(size(z_mean));
+p(1,:) = pmv1(1:end/3); 
+p(2,:) = pmv1(end/3+1:2*end/3); 
+p(3,:) = pmv1((2*end/3)+1:end); 
+ 
+
+pmv2=z_a+2*sqrt(eig_values(ind(i)))*V(:,ind(i));
+p1 = zeros(size(z_mean));
+p1(1,:) = pmv2(1:end/3); 
+p1(2,:) = pmv2(end/3+1:2*end/3); 
+p1(3,:) = pmv2((2*end/3)+1:end); 
+
+
+figure();
+set(gcf,'units','centimeters','position',[0 0 30 12]);
+subplot(1,3,1)
+f1 = patch('Vertices',p','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','r','EdgeColor','r',...
+    'FaceAlpha','0.3','EdgeAlpha','0.3');
+view([1,0.5,-0.5])
+hold on
+subplot(1,3,2)
+f2 = patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','b','EdgeColor','b',...
+    'FaceAlpha','0.3','EdgeAlpha','0.3');
+view([1,0.5,-0.5])
+subplot(1,3,3)
+f3 = patch('Vertices',p1','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','g','EdgeColor','g',...
+    'FaceAlpha','0.3','EdgeAlpha','0.3');
+view([1,0.8,-0.5])
+legend([f1 f2 f3],'-2*{\surd}\lambda','Mean','+2*{\surd}\lambda')
+suptitle(strcat('Modes of Variation for ',' Eigen Value:',num2str(i),' = ',num2str(eig_values(ind(i)))));
+
+hold off;
+
+figure();
+set(gcf,'units','centimeters','position',[0 0 30 12]);
+f1 = patch('Vertices',p','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','none','EdgeColor','r',...
+    'FaceAlpha','0.3','EdgeAlpha','1');
+hold on
+
+f2 = patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','none','EdgeColor','b',...
+    'FaceAlpha','0.3','EdgeAlpha','1');
+
+f3 = patch('Vertices',p1','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','none','EdgeColor','g',...
+    'FaceAlpha','0.3','EdgeAlpha','1');
+
+view([1 1 0])
+
+legend([f1 f2 f3],'-2*{\surd}\lambda','Mean','+2*{\surd}\lambda')
+title(strcat('Modes of Variation for ',' Eigen Value:',num2str(i),' = ',num2str(eig_values(ind(i)))));
+
+figure();
+set(gcf,'units','centimeters','position',[0 0 25 15]);
+f1 = patch('Vertices',p','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','r','EdgeColor','r',...
+    'FaceAlpha','0.5','EdgeAlpha','0.6');
+view([1,0.5,-0.5])
+hold on
+
+f2 = patch('Vertices',z_mean','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','b','EdgeColor','b',...
+    'FaceAlpha','0.5','EdgeAlpha','0.6');
+view([1,0.5,-0.5])
+
+f3 = patch('Vertices',p1','Faces',TriangleIndex,'FaceVertexCData',(1:252)','FaceColor','g','EdgeColor','g',...
+    'FaceAlpha','0.5','EdgeAlpha','0.6');
+view([1,0.8,-0.5])
+legend([f1 f2 f3],'-2*{\surd}\lambda','Mean','+2*{\surd}\lambda')
+suptitle(strcat('Alligned PointSets and Modes of Variation for ',' Eigen Value:',num2str(i),' = ',num2str(eig_values(ind(i)))));
+
+S = repmat(6,K,1)';
+for j =1:N
+C = repmat(rand(1,3),K,1);
+scatter3(zp(1,:,j),zp(2,:,j),zp(3,:,j),S,C,'filled');
+hold on;
+end
+hold off;
+end
+##### SOURCE END #####
+--></body></html>

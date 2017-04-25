@@ -1,0 +1,222 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Q3.</title><meta name="generator" content="MATLAB 8.1"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-12"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, tt, code { font-size:12px; }
+pre { margin:0px 0px 20px; }
+pre.error { color:red; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Q3.</h1><!--introduction--><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load data</a></li><li><a href="#2">CT_Chest</a></li><li><a href="#5">Phantom Image</a></li></ul></div><h2>Load data<a name="1"></a></h2><pre class="codeinput">chest = load(<span class="string">'../data/CT_Chest.mat'</span>);
+chest_img = mat2gray(chest.imageAC);
+
+phantom = load(<span class="string">'../data/myPhantom.mat'</span>);
+phantom_img = mat2gray(phantom.imageAC);
+
+range = 150;
+</pre><h2>CT_Chest<a name="2"></a></h2><pre class="codeinput">RRMSE_vals = zeros(1,181);
+radon_chest = radon(chest_img,0:180);
+<span class="keyword">for</span> theta = 0:180
+    ind = sort(mod((0:150)+theta,181)+1);
+    radon_trans150 = radon_chest(:,ind);
+	backProj = mat2gray(iradon(radon_trans150, ind-1,<span class="string">'linear'</span>,<span class="string">'Ram-Lak'</span>,1,size(chest_img,1)));
+	RRMSE_vals(theta+1) = sqrt(sum((chest_img(:)-backProj(:)).^2)/sum((chest_img(:).^2)));
+<span class="keyword">end</span>
+
+[~,index] = min(RRMSE_vals);
+ ind = sort(mod((0:150)+(index-1),181)+1);
+
+radon_trans_min = radon_chest(:,ind);
+minbackProj = mat2gray(iradon(radon_trans_min, ind-1,<span class="string">'linear'</span>,<span class="string">'Ram-Lak'</span>,1,size(chest_img,1)));
+
+figure
+subplot(2,2,1:2)
+plot(0:180,RRMSE_vals);
+title(<span class="string">'RRMSE vs Theta | CT Chest'</span>)
+xlabel(<span class="string">'theta (deg)'</span>);
+ylabel(<span class="string">'RRMSE'</span>);
+subplot(2,2,4)
+imshow(minbackProj)
+title(<span class="string">'Backproj (min RRMSE)'</span>)
+subplot(2,2,3);
+imshow(chest_img);
+title(<span class="string">'Orignal Image'</span>);
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <div><ul><li><b>Minimum Occurs at theta = <img src="main_eq13480.png" alt="$9^{\circ}$"></b></li></ul></div><h2>Phantom Image<a name="5"></a></h2><pre class="codeinput">RRMSE_vals = zeros(1,181);
+radon_phantom = radon(phantom_img,0:180);
+<span class="keyword">for</span> theta = 0:180
+    ind = sort(mod((0:150)+theta,181)+1);
+    radon_trans150 = radon_phantom(:,ind);
+	backProj = mat2gray(iradon(radon_trans150, ind-1,<span class="string">'linear'</span>,<span class="string">'Ram-Lak'</span>,1,size(phantom_img,1)));
+	RRMSE_vals(theta+1) = sqrt(sum((phantom_img(:)-backProj(:)).^2)/sum((phantom_img(:).^2)));
+<span class="keyword">end</span>
+
+[val,index1] = min(RRMSE_vals);
+ ind = sort(mod((0:150)+(index1-1),181)+1);
+
+radon_trans_min = radon_phantom(:,ind);
+minbackProj = mat2gray(iradon(radon_trans_min, ind-1,<span class="string">'linear'</span>,<span class="string">'Ram-Lak'</span>,1,size(phantom_img,1)));
+
+figure
+subplot(2,2,1:2)
+plot(0:180,RRMSE_vals);
+title(<span class="string">'RRMSE vs Theta | Phantom'</span>)
+xlabel(<span class="string">'theta (deg)'</span>);
+ylabel(<span class="string">'RRMSE'</span>);
+subplot(2,2,4)
+imshow(minbackProj)
+title(<span class="string">'Backproj (min RRMSE)'</span>)
+subplot(2,2,3);
+imshow(phantom_img);
+title(<span class="string">'Orignal Image'</span>);
+</pre><img vspace="5" hspace="5" src="main_02.png" alt=""> <div><ul><li><b>Minimum Occurs at theta = <img src="main_eq19274.png" alt="$20^{\circ}$"></b></li></ul></div><div><ul><li>The CT-scan data is aquired only for 150 deg of contiguos angle values which brings in error.For minimum error we want to take the direction/theta which capture maximum information/variation from the image.We know that 1D fft of the forward projection at a particular angle is same as the 2D fft of orignal image in that direction.So by looking at the 2D fft of original image,we can select theta to remove the angular section with least energy in fft which contains least information.</li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2013a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Q3.
+
+%% Load data
+
+chest = load('../data/CT_Chest.mat');
+chest_img = mat2gray(chest.imageAC);
+
+phantom = load('../data/myPhantom.mat');
+phantom_img = mat2gray(phantom.imageAC);
+
+range = 150;
+%% CT_Chest
+
+RRMSE_vals = zeros(1,181);
+radon_chest = radon(chest_img,0:180);
+for theta = 0:180
+    ind = sort(mod((0:150)+theta,181)+1);
+    radon_trans150 = radon_chest(:,ind);
+	backProj = mat2gray(iradon(radon_trans150, ind-1,'linear','Ram-Lak',1,size(chest_img,1)));
+	RRMSE_vals(theta+1) = sqrt(sum((chest_img(:)-backProj(:)).^2)/sum((chest_img(:).^2)));
+end
+
+[~,index] = min(RRMSE_vals);
+ ind = sort(mod((0:150)+(index-1),181)+1);
+
+radon_trans_min = radon_chest(:,ind);
+minbackProj = mat2gray(iradon(radon_trans_min, ind-1,'linear','Ram-Lak',1,size(chest_img,1)));
+
+figure 
+subplot(2,2,1:2)
+plot(0:180,RRMSE_vals);
+title('RRMSE vs Theta | CT Chest')
+xlabel('theta (deg)');
+ylabel('RRMSE');
+subplot(2,2,4)
+imshow(minbackProj)
+title('Backproj (min RRMSE)')
+subplot(2,2,3);
+imshow(chest_img);
+title('Orignal Image');
+
+%%
+%%
+% 
+% * *Minimum Occurs at theta = $9^{\circ}$*
+% 
+%% Phantom Image
+
+RRMSE_vals = zeros(1,181);
+radon_phantom = radon(phantom_img,0:180);
+for theta = 0:180
+    ind = sort(mod((0:150)+theta,181)+1);
+    radon_trans150 = radon_phantom(:,ind);
+	backProj = mat2gray(iradon(radon_trans150, ind-1,'linear','Ram-Lak',1,size(phantom_img,1)));
+	RRMSE_vals(theta+1) = sqrt(sum((phantom_img(:)-backProj(:)).^2)/sum((phantom_img(:).^2)));
+end
+
+[val,index1] = min(RRMSE_vals);
+ ind = sort(mod((0:150)+(index1-1),181)+1);
+
+radon_trans_min = radon_phantom(:,ind);
+minbackProj = mat2gray(iradon(radon_trans_min, ind-1,'linear','Ram-Lak',1,size(phantom_img,1)));
+
+figure 
+subplot(2,2,1:2)
+plot(0:180,RRMSE_vals);
+title('RRMSE vs Theta | Phantom')
+xlabel('theta (deg)');
+ylabel('RRMSE');
+subplot(2,2,4)
+imshow(minbackProj)
+title('Backproj (min RRMSE)')
+subplot(2,2,3);
+imshow(phantom_img);
+title('Orignal Image');
+
+
+%%
+% 
+% * *Minimum Occurs at theta = $20^{\circ}$*
+% 
+%%
+%
+% * The CT-scan data is aquired only for 150 deg of contiguos angle values
+% which brings in error.For minimum error we want to take the
+% direction/theta which capture maximum information/variation from the
+% image.We know that 1D fft of the forward projection at a particular angle
+% is same as the 2D fft of orignal image in that direction.So by looking
+% at the 2D fft of original image,we can select theta to remove the angular
+% section with least energy in fft which contains least information.
+##### SOURCE END #####
+--></body></html>

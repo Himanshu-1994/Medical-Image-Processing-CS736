@@ -1,0 +1,210 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>main</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-04-08"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">EM beta = 0.35</a></li><li><a href="#3">EM beta = 0</a></li></ul></div><pre class="codeinput">clear;
+close <span class="string">all</span>;
+
+load(<span class="string">'../data/assignmentSegmentBrainGmmEmMrf.mat'</span>);
+rng(0);
+Y = imageData;
+mask = imageMask;
+K = 3;
+
+Z = initial_label(Y,mask);
+
+plot_images(Z,<span class="string">'Initial Estimate for labels via Kmeans'</span>)
+m = zeros(1,K);
+s = zeros(1,K);
+
+<span class="keyword">for</span> label = 1:K
+
+    m(1,label) = mean(Y(logical(Z==label)));
+    s(1,label) = std(Y(logical(Z==label)));
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <h2>EM beta = 0.35<a name="2"></a></h2><pre class="codeinput">display(<span class="string">'Beta = 0.35'</span>);
+beta = 0.35;
+[seg, G, m_0] = EMLabels(Y, mask, K, Z, m, s, beta);
+plot_images(imageData, <span class="string">'Original Corrupted Image'</span>);
+plot_images(G(:, :, 1), <span class="string">'Class-Membership for Label 1 : beta = 0.35'</span>);
+plot_images(G(:, :, 2), <span class="string">'Class-Membership for Label 2 : beta = 0.35'</span>);
+plot_images(G(:, :, 3), <span class="string">'Class-Membership for Label 3 : beta = 0.35'</span>);
+plot_images(seg, <span class="string">'GMM-MRF-EM Image Segmentation : beta = 0.35'</span>);
+</pre><pre class="codeoutput">Beta = 0.35
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 4.426786e+04 =&gt; newpos = 4.811266e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.211542e+04 =&gt; newpos = 5.222189e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.315474e+04 =&gt; newpos = 5.326694e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.362876e+04 =&gt; newpos = 5.365166e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.381840e+04 =&gt; newpos = 5.383943e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.392594e+04 =&gt; newpos = 5.393042e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.397674e+04 =&gt; newpos = 5.398179e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.400959e+04 =&gt; newpos = 5.401783e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.403665e+04 =&gt; newpos = 5.404722e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.405933e+04 =&gt; newpos = 5.406206e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.406996e+04 =&gt; newpos = 5.407368e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.407928e+04 =&gt; newpos = 5.408064e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.408440e+04 =&gt; newpos = 5.408377e+04 
+
+Posterior not increased.No MAP update.
+
+Terminating
+</pre><img vspace="5" hspace="5" src="main_02.png" alt=""> <img vspace="5" hspace="5" src="main_03.png" alt=""> <img vspace="5" hspace="5" src="main_04.png" alt=""> <img vspace="5" hspace="5" src="main_05.png" alt=""> <img vspace="5" hspace="5" src="main_06.png" alt=""> <h2>EM beta = 0<a name="3"></a></h2><pre class="codeinput">display(<span class="string">'Beta = 0'</span>);
+beta = 0;
+[seg, G, m_1] = EMLabels(Y, mask, K, Z, m, s, beta);
+plot_images(G(:, :, 1), <span class="string">'Class-Membership for Label 1 : beta = 0'</span>);
+plot_images(G(:, :, 2), <span class="string">'Class-Membership for Label 2 : beta = 0'</span>);
+plot_images(G(:, :, 3), <span class="string">'Class-Membership for Label 3 : beta = 0'</span>);
+plot_images(seg, <span class="string">'GMM-MRF-EM Image Segmentation : beta = 0'</span>);
+</pre><pre class="codeoutput">Beta = 0
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 4.644433e+04 =&gt; newpos = 4.922289e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.281217e+04 =&gt; newpos = 5.290560e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.381120e+04 =&gt; newpos = 5.384951e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.429262e+04 =&gt; newpos = 5.432591e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.459501e+04 =&gt; newpos = 5.462376e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.481778e+04 =&gt; newpos = 5.483839e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.499373e+04 =&gt; newpos = 5.501076e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.514516e+04 =&gt; newpos = 5.515561e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.527104e+04 =&gt; newpos = 5.527709e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.537257e+04 =&gt; newpos = 5.537586e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.545156e+04 =&gt; newpos = 5.545421e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.551201e+04 =&gt; newpos = 5.551367e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.555632e+04 =&gt; newpos = 5.555710e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.558770e+04 =&gt; newpos = 5.558823e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.560994e+04 =&gt; newpos = 5.561020e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.562542e+04 =&gt; newpos = 5.562551e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.563603e+04 =&gt; newpos = 5.563618e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.564356e+04 =&gt; newpos = 5.564366e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.564879e+04 =&gt; newpos = 5.564881e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565235e+04 =&gt; newpos = 5.565237e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565480e+04 =&gt; newpos = 5.565481e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565648e+04 =&gt; newpos = 5.565648e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565762e+04 =&gt; newpos = 5.565762e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565840e+04 =&gt; newpos = 5.565840e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565893e+04 =&gt; newpos = 5.565893e+04 
+ICM change in Posterior -&gt; log(P(x | y, beta_val, theta)) : oldpos = 5.565929e+04 =&gt; newpos = 5.565929e+04 
+
+Posterior not increased.No MAP update.
+
+Terminating
+</pre><img vspace="5" hspace="5" src="main_07.png" alt=""> <img vspace="5" hspace="5" src="main_08.png" alt=""> <img vspace="5" hspace="5" src="main_09.png" alt=""> <img vspace="5" hspace="5" src="main_10.png" alt=""> <div><ul><li>The optimal value of <b>beta is = 0.35</b></li><li>The label image is initialized to kmeans with 3 clusters.This  is a fast way of getting good initialization for the labels.</li><li>Initial Estimates for class means and variance are obtained from the initialized labels by taking membership to any class as 1 and hence mean and standard deviations are that of sample data in that class.</li><li>Initial Mean = [0.2963, 0.6049, 0.5062] ; Initial Standard Deviation = [0.0595, 0.1106, 0.0413]</li><li>Optimal estimate of class means for <b>beta = 0.35</b> are [0.3193, 0.6286, 0.5221] and for <b>beta = 0</b> are [0.3795, 0.6358, 0.5346]</li></ul></div><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clear;
+close all;
+
+load('../data/assignmentSegmentBrainGmmEmMrf.mat');
+rng(0);
+Y = imageData;
+mask = imageMask;
+K = 3;
+
+Z = initial_label(Y,mask);
+
+plot_images(Z,'Initial Estimate for labels via Kmeans')
+m = zeros(1,K);
+s = zeros(1,K);
+
+for label = 1:K
+   
+    m(1,label) = mean(Y(logical(Z==label))); 
+    s(1,label) = std(Y(logical(Z==label))); 
+end
+
+%% EM beta = 0.35
+display('Beta = 0.35');
+beta = 0.35;
+[seg, G, m_0] = EMLabels(Y, mask, K, Z, m, s, beta);
+plot_images(imageData, 'Original Corrupted Image');
+plot_images(G(:, :, 1), 'Class-Membership for Label 1 : beta = 0.35');
+plot_images(G(:, :, 2), 'Class-Membership for Label 2 : beta = 0.35');
+plot_images(G(:, :, 3), 'Class-Membership for Label 3 : beta = 0.35');
+plot_images(seg, 'GMM-MRF-EM Image Segmentation : beta = 0.35');
+
+%% EM beta = 0
+display('Beta = 0');
+beta = 0;
+[seg, G, m_1] = EMLabels(Y, mask, K, Z, m, s, beta);
+plot_images(G(:, :, 1), 'Class-Membership for Label 1 : beta = 0');
+plot_images(G(:, :, 2), 'Class-Membership for Label 2 : beta = 0');
+plot_images(G(:, :, 3), 'Class-Membership for Label 3 : beta = 0');
+plot_images(seg, 'GMM-MRF-EM Image Segmentation : beta = 0');
+
+
+%%
+%%
+% 
+% * The optimal value of *beta is = 0.35* 
+% * The label image is initialized to kmeans with 3 clusters.This  is a
+% fast way of getting good initialization for the labels.
+% * Initial Estimates for class means and variance are obtained from the
+% initialized labels by taking membership to any class as 1 and hence mean
+% and standard deviations are that of sample data in that class.
+% * Initial Mean = [0.2963, 0.6049, 0.5062] ; Initial Standard Deviation = [0.0595, 0.1106, 0.0413] 
+% * Optimal estimate of class means for *beta = 0.35* are
+% [0.3193, 0.6286, 0.5221] and for *beta = 0* are [0.3795, 0.6358, 0.5346]
+% 
+##### SOURCE END #####
+--></body></html>

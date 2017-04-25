@@ -1,0 +1,53 @@
+%% Q2
+load('../data/assignmentImageDenoisingBrainNoisy.mat');
+[m,n] = size(imageNoisy);
+Y = imageNoisy;
+
+%% Estimating noise level
+
+bg = imageNoisy(1:50,1:50);
+[r,c] = size(bg);
+
+var = sum(abs(bg(:)).^2)/(r*c);
+
+%% Denoising
+
+alpha_1 = 0.3;
+[denoised_image_1, obj_fun_1] = denoise_1(Y,alpha_1);
+
+alpha_2 = 0.4;
+gamma_2 = 0.2;
+[denoised_image_2, obj_fun_2] = denoise_2(Y,alpha_2,gamma_2);
+
+alpha_3 = 0.4;
+gamma_3 = 0.2;
+[denoised_image_3, obj_fun_3] = denoise_3(Y,alpha_3,gamma_3);
+
+%% Displaying the Images
+figure();
+imshow(abs(Y))
+title('Noisy Image')
+
+figure();
+imshow(abs(denoised_image_1))
+title('Denoised Image using Quadratic Prior')
+
+figure();
+imshow(abs(denoised_image_2))
+title('Denoised Image using Huber Prior')
+
+figure();
+imshow(abs(denoised_image_3))
+title('Denoised Image using Discontinuity Adaptive Prior')
+
+figure();
+plot(obj_fun_1)
+title('Quadratic Prior')
+
+figure();
+plot(obj_fun_2)
+title('Huber Prior')
+
+figure();
+plot(obj_fun_3)
+title('Discontinuity Adaptive Prior')

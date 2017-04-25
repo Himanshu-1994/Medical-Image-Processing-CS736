@@ -1,0 +1,164 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Q2</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-03-26"><meta name="DC.source" content="Q2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Q2</a></li><li><a href="#2">Reconstruction</a></li><li><a href="#3">Displaying the Images</a></li><li><a href="#4">Plotting the objective functions</a></li></ul></div><h2>Q2<a name="1"></a></h2><pre class="codeinput">load(<span class="string">'../data/assignmentImageReconstructionBrain.mat'</span>);
+Y = imageKspaceData;
+[m,n] = size(Y);
+M = imageKspaceMask;
+X_init = (ifft2(Y));
+</pre><h2>Reconstruction<a name="2"></a></h2><pre class="codeinput">alpha_1 = 0.9998;
+[reconstructed_image_1, obj_fun_1] = reconstruct_1(X_init,Y,M,alpha_1);
+
+alpha_2 = 0.9999;
+gamma_2 = 0.01;
+[reconstructed_image_2, obj_fun_2] = reconstruct_2(X_init,Y,M,alpha_2,gamma_2);
+
+alpha_3 = 0.9999;
+gamma_3 = 0.017;
+[reconstructed_image_3, obj_fun_3] = reconstruct_3(X_init,Y,M,alpha_3,gamma_3);
+</pre><h2>Displaying the Images<a name="3"></a></h2><pre class="codeinput">figure();
+imshow(abs(X_init))
+title(<span class="string">'InverseFourier-KspaceData'</span>)
+
+figure();
+imshow(abs(reconstructed_image_1))
+title(<span class="string">'Reconstructed Image using Quadratic Prior'</span>)
+
+figure();
+imshow(abs(reconstructed_image_2))
+title(<span class="string">'Reconstructed Image using Huber Prior'</span>)
+
+figure();
+imshow(abs(reconstructed_image_3))
+title(<span class="string">'Reconstructed Image using Discontinuity Adaptive Prior'</span>)
+</pre><img vspace="5" hspace="5" src="Q2_01.png" alt=""> <img vspace="5" hspace="5" src="Q2_02.png" alt=""> <img vspace="5" hspace="5" src="Q2_03.png" alt=""> <img vspace="5" hspace="5" src="Q2_04.png" alt=""> <h2>Plotting the objective functions<a name="4"></a></h2><pre class="codeinput">figure();
+plot(obj_fun_1)
+title(<span class="string">'Quadratic Prior'</span>)
+
+figure();
+plot(obj_fun_2)
+title(<span class="string">'Huber Prior'</span>)
+
+figure();
+plot(obj_fun_3)
+title(<span class="string">'Discontinuity Adaptive Prior'</span>)
+</pre><img vspace="5" hspace="5" src="Q2_05.png" alt=""> <img vspace="5" hspace="5" src="Q2_06.png" alt=""> <img vspace="5" hspace="5" src="Q2_07.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Q2
+load('../data/assignmentImageReconstructionBrain.mat');
+Y = imageKspaceData;
+[m,n] = size(Y);
+M = imageKspaceMask;
+X_init = (ifft2(Y));
+
+%% Reconstruction
+
+alpha_1 = 0.9998;
+[reconstructed_image_1, obj_fun_1] = reconstruct_1(X_init,Y,M,alpha_1);
+
+alpha_2 = 0.9999;
+gamma_2 = 0.01;
+[reconstructed_image_2, obj_fun_2] = reconstruct_2(X_init,Y,M,alpha_2,gamma_2);
+
+alpha_3 = 0.9999;
+gamma_3 = 0.017;
+[reconstructed_image_3, obj_fun_3] = reconstruct_3(X_init,Y,M,alpha_3,gamma_3);
+
+%% Displaying the Images
+
+figure();
+imshow(abs(X_init))
+title('InverseFourier-KspaceData')
+
+figure();
+imshow(abs(reconstructed_image_1))
+title('Reconstructed Image using Quadratic Prior')
+
+figure();
+imshow(abs(reconstructed_image_2))
+title('Reconstructed Image using Huber Prior')
+
+figure();
+imshow(abs(reconstructed_image_3))
+title('Reconstructed Image using Discontinuity Adaptive Prior')
+
+%% Plotting the objective functions
+
+figure();
+plot(obj_fun_1)
+title('Quadratic Prior')
+
+figure();
+plot(obj_fun_2)
+title('Huber Prior')
+
+figure();
+plot(obj_fun_3)
+title('Discontinuity Adaptive Prior')
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,373 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Q1</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-03-26"><meta name="DC.source" content="Q1.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Q1</a></li><li><a href="#2">MRF Prior: Quadratic Function</a></li><li><a href="#3">MRF Prior: Huber Function</a></li><li><a href="#4">MRF Prior: Discontinuity Adaptive Function</a></li><li><a href="#5">Displaying the Images</a></li><li><a href="#6">Plotting the objective functions</a></li></ul></div><h2>Q1<a name="1"></a></h2><pre class="codeinput">load(<span class="string">'../data/assignmentImageReconstructionPhantom.mat'</span>);
+[m,n] = size(imageNoiseless);
+Y = imageKspaceData;
+X_init = ifft2(Y);
+A = imageNoiseless;
+M = imageKspaceMask;
+
+rmmse = RRMSE(X_init,A);
+output = [<span class="string">'The RMMSE between the inverseFourier-kspaceData and the noiseless image is '</span>, num2str(rmmse)];
+disp(output)
+</pre><pre class="codeoutput">The RMMSE between the inverseFourier-kspaceData and the noiseless image is 0.26123
+</pre><h2>MRF Prior: Quadratic Function<a name="2"></a></h2><pre class="codeinput">opt_alpha_1 = 0.9998;
+output = [<span class="string">'optimal_alpha = '</span>,num2str(opt_alpha_1)];
+disp(output)
+
+alpha_1_1 = 0.8*opt_alpha_1;
+alpha_1_2 = min([1,1.2*opt_alpha_1]);
+
+[reconstructed_image_1, obj_fun_1] = reconstruct_1(X_init,Y,M,opt_alpha_1);
+[im1, ~] = reconstruct_1(X_init,Y,M,alpha_1_1);
+[im2, ~] = reconstruct_1(X_init,Y,M,alpha_1_2);
+
+opt_rrmse_1 = RRMSE(reconstructed_image_1,A);
+rrmse_1_1 = RRMSE(im1,A);
+rrmse_1_2 = RRMSE(im2,A);
+
+output = [<span class="string">'RRMSE(optimal_alpha) = '</span>,num2str(opt_rrmse_1)];
+disp(output)
+output = [<span class="string">'RRMSE(0.8*optimal_alpha) = '</span>,num2str(rrmse_1_1)];
+disp(output)
+output = [<span class="string">'RRMSE(1.2*optimal_alpha) = '</span>,num2str(rrmse_1_2)];
+disp(output)
+</pre><pre class="codeoutput">optimal_alpha = 0.9998
+RRMSE(optimal_alpha) = 0.24382
+RRMSE(0.8*optimal_alpha) = 0.26121
+RRMSE(1.2*optimal_alpha) = 0.58804
+</pre><h2>MRF Prior: Huber Function<a name="3"></a></h2><pre class="codeinput">opt_alpha_2 = 1;
+output = [<span class="string">'optimal_alpha = '</span>,num2str(opt_alpha_2)];
+disp(output)
+
+opt_gamma_2 = 0.0042;
+output = [<span class="string">'optimal_gamma = '</span>,num2str(opt_gamma_2)];
+disp(output)
+
+alpha_2_1 = min([0.8*opt_alpha_2,1]);
+alpha_2_2 = min([1.2*opt_alpha_2,1]);
+gamma_2_1 = 0.8*opt_gamma_2;
+gamma_2_2 = 1.2*opt_gamma_2;
+
+
+[reconstructed_image_2, obj_fun_2] = reconstruct_2(X_init,Y,M,opt_alpha_2,opt_gamma_2);
+[im1, ~] = reconstruct_2(X_init,Y,M,alpha_2_1,opt_gamma_2);
+[im2, ~] = reconstruct_2(X_init,Y,M,alpha_2_2,opt_gamma_2);
+[im3, ~] = reconstruct_2(X_init,Y,M,opt_alpha_2,gamma_2_1);
+[im4, ~] = reconstruct_2(X_init,Y,M,opt_alpha_2,gamma_2_2);
+
+opt_rrmse_2 = RRMSE(reconstructed_image_2,A);
+rrmse_2_1 = RRMSE(im1,A);
+rrmse_2_2 = RRMSE(im2,A);
+rrmse_2_3 = RRMSE(im3,A);
+rrmse_2_4 = RRMSE(im4,A);
+
+output = [<span class="string">'RRMSE(optimal_alpha,optimal_gamma) = '</span>,num2str(opt_rrmse_2)];
+disp(output)
+output = [<span class="string">'RRMSE(0.8*optimal_alpha,optimal_gamma) = '</span>,num2str(rrmse_2_1)];
+disp(output)
+output = [<span class="string">'RRMSE(1.2*optimal_alpha,optimal_gamma) = '</span>,num2str(rrmse_2_2)];
+disp(output)
+output = [<span class="string">'RRMSE(optimal_alpha,0.8*optimal_gamma) = '</span>,num2str(rrmse_2_3)];
+disp(output)
+output = [<span class="string">'RRMSE(optimal_alpha,1.2*optimal_gamma) = '</span>,num2str(rrmse_2_4)];
+disp(output)
+</pre><pre class="codeoutput">optimal_alpha = 1
+optimal_gamma = 0.0042
+RRMSE(optimal_alpha,optimal_gamma) = 0.18614
+RRMSE(0.8*optimal_alpha,optimal_gamma) = 0.26123
+RRMSE(1.2*optimal_alpha,optimal_gamma) = 0.18614
+RRMSE(optimal_alpha,0.8*optimal_gamma) = 0.18633
+RRMSE(optimal_alpha,1.2*optimal_gamma) = 0.18651
+</pre><h2>MRF Prior: Discontinuity Adaptive Function<a name="4"></a></h2><pre class="codeinput">opt_alpha_3 = 1;
+output = [<span class="string">'optimal_alpha = '</span>,num2str(opt_alpha_3)];
+disp(output)
+
+opt_gamma_3 = 0.0023;
+output = [<span class="string">'optimal_gamma = '</span>,num2str(opt_gamma_3)];
+disp(output)
+
+alpha_3_1 = min([0.8*opt_alpha_3,1]);
+alpha_3_2 = min([1.2*opt_alpha_3,1]);
+gamma_3_1 = 0.8*opt_gamma_3;
+gamma_3_2 = 1.2*opt_gamma_3;
+
+
+[reconstructed_image_3, obj_fun_3] = reconstruct_3(X_init,Y,M,opt_alpha_3,opt_gamma_3);
+[im1, ~] = reconstruct_3(X_init,Y,M,alpha_3_1,opt_gamma_3);
+[im2, ~] = reconstruct_3(X_init,Y,M,alpha_3_2,opt_gamma_3);
+[im3, ~] = reconstruct_3(X_init,Y,M,opt_alpha_3,gamma_3_1);
+[im4, ~] = reconstruct_3(X_init,Y,M,opt_alpha_3,gamma_3_2);
+
+opt_rrmse_3 = RRMSE(reconstructed_image_3,A);
+rrmse_3_1 = RRMSE(im1,A);
+rrmse_3_2 = RRMSE(im2,A);
+rrmse_3_3 = RRMSE(im3,A);
+rrmse_3_4 = RRMSE(im4,A);
+
+output = [<span class="string">'RRMSE(optimal_alpha,optimal_gamma) = '</span>,num2str(opt_rrmse_3)];
+disp(output)
+output = [<span class="string">'RRMSE(0.8*optimal_alpha,optimal_gamma) = '</span>,num2str(rrmse_3_1)];
+disp(output)
+output = [<span class="string">'RRMSE(1.2*optimal_alpha,optimal_gamma) = '</span>,num2str(rrmse_3_2)];
+disp(output)
+output = [<span class="string">'RRMSE(optimal_alpha,0.8*optimal_gamma) = '</span>,num2str(rrmse_3_3)];
+disp(output)
+output = [<span class="string">'RRMSE(optimal_alpha,1.2*optimal_gamma) = '</span>,num2str(rrmse_3_4)];
+disp(output)
+</pre><pre class="codeoutput">optimal_alpha = 1
+optimal_gamma = 0.0023
+RRMSE(optimal_alpha,optimal_gamma) = 0.18715
+RRMSE(0.8*optimal_alpha,optimal_gamma) = 0.26123
+RRMSE(1.2*optimal_alpha,optimal_gamma) = 0.18715
+RRMSE(optimal_alpha,0.8*optimal_gamma) = 0.18716
+RRMSE(optimal_alpha,1.2*optimal_gamma) = 0.18739
+</pre><h2>Displaying the Images<a name="5"></a></h2><pre class="codeinput">figure();
+imshow(A)
+title(<span class="string">'Noiseless Image'</span>)
+
+figure();
+imshow(abs(X_init))
+title(<span class="string">'InverseFourier-kspaceData'</span>)
+
+figure();
+imshow(abs(reconstructed_image_1))
+title(<span class="string">'Reconstructed Image using Quadratic Prior'</span>)
+
+figure();
+imshow(abs(reconstructed_image_2))
+title(<span class="string">'Reconstructed Image using Huber Prior'</span>)
+
+figure();
+imshow(abs(reconstructed_image_3))
+title(<span class="string">'Reconstructed Image using Discontinuity Adaptive Prior'</span>)
+</pre><img vspace="5" hspace="5" src="Q1_01.png" alt=""> <img vspace="5" hspace="5" src="Q1_02.png" alt=""> <img vspace="5" hspace="5" src="Q1_03.png" alt=""> <img vspace="5" hspace="5" src="Q1_04.png" alt=""> <img vspace="5" hspace="5" src="Q1_05.png" alt=""> <h2>Plotting the objective functions<a name="6"></a></h2><pre class="codeinput">figure();
+plot(obj_fun_1)
+title(<span class="string">'Quadratic Prior'</span>)
+
+figure();
+plot(obj_fun_2)
+title(<span class="string">'Huber Prior'</span>)
+
+figure();
+plot(obj_fun_3)
+title(<span class="string">'Discontinuity Adaptive Prior'</span>)
+</pre><img vspace="5" hspace="5" src="Q1_06.png" alt=""> <img vspace="5" hspace="5" src="Q1_07.png" alt=""> <img vspace="5" hspace="5" src="Q1_08.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Q1
+load('../data/assignmentImageReconstructionPhantom.mat');
+[m,n] = size(imageNoiseless);
+Y = imageKspaceData;
+X_init = ifft2(Y);
+A = imageNoiseless;
+M = imageKspaceMask;
+
+rmmse = RRMSE(X_init,A);
+output = ['The RMMSE between the inverseFourier-kspaceData and the noiseless image is ', num2str(rmmse)];
+disp(output)
+
+%% MRF Prior: Quadratic Function 
+
+opt_alpha_1 = 0.9998;
+output = ['optimal_alpha = ',num2str(opt_alpha_1)];
+disp(output)
+
+alpha_1_1 = 0.8*opt_alpha_1;
+alpha_1_2 = min([1,1.2*opt_alpha_1]);
+
+[reconstructed_image_1, obj_fun_1] = reconstruct_1(X_init,Y,M,opt_alpha_1);
+[im1, ~] = reconstruct_1(X_init,Y,M,alpha_1_1);
+[im2, ~] = reconstruct_1(X_init,Y,M,alpha_1_2);
+
+opt_rrmse_1 = RRMSE(reconstructed_image_1,A);
+rrmse_1_1 = RRMSE(im1,A);
+rrmse_1_2 = RRMSE(im2,A);
+
+output = ['RRMSE(optimal_alpha) = ',num2str(opt_rrmse_1)];
+disp(output)
+output = ['RRMSE(0.8*optimal_alpha) = ',num2str(rrmse_1_1)];
+disp(output)
+output = ['RRMSE(1.2*optimal_alpha) = ',num2str(rrmse_1_2)];
+disp(output)
+
+%% MRF Prior: Huber Function
+
+opt_alpha_2 = 1;
+output = ['optimal_alpha = ',num2str(opt_alpha_2)];
+disp(output)
+
+opt_gamma_2 = 0.0042;
+output = ['optimal_gamma = ',num2str(opt_gamma_2)];
+disp(output)
+
+alpha_2_1 = min([0.8*opt_alpha_2,1]);
+alpha_2_2 = min([1.2*opt_alpha_2,1]);
+gamma_2_1 = 0.8*opt_gamma_2;
+gamma_2_2 = 1.2*opt_gamma_2;
+
+
+[reconstructed_image_2, obj_fun_2] = reconstruct_2(X_init,Y,M,opt_alpha_2,opt_gamma_2);
+[im1, ~] = reconstruct_2(X_init,Y,M,alpha_2_1,opt_gamma_2);
+[im2, ~] = reconstruct_2(X_init,Y,M,alpha_2_2,opt_gamma_2);
+[im3, ~] = reconstruct_2(X_init,Y,M,opt_alpha_2,gamma_2_1);
+[im4, ~] = reconstruct_2(X_init,Y,M,opt_alpha_2,gamma_2_2);
+
+opt_rrmse_2 = RRMSE(reconstructed_image_2,A);
+rrmse_2_1 = RRMSE(im1,A);
+rrmse_2_2 = RRMSE(im2,A);
+rrmse_2_3 = RRMSE(im3,A);
+rrmse_2_4 = RRMSE(im4,A);
+
+output = ['RRMSE(optimal_alpha,optimal_gamma) = ',num2str(opt_rrmse_2)];
+disp(output)
+output = ['RRMSE(0.8*optimal_alpha,optimal_gamma) = ',num2str(rrmse_2_1)];
+disp(output)
+output = ['RRMSE(1.2*optimal_alpha,optimal_gamma) = ',num2str(rrmse_2_2)];
+disp(output)
+output = ['RRMSE(optimal_alpha,0.8*optimal_gamma) = ',num2str(rrmse_2_3)];
+disp(output)
+output = ['RRMSE(optimal_alpha,1.2*optimal_gamma) = ',num2str(rrmse_2_4)];
+disp(output)
+
+%% MRF Prior: Discontinuity Adaptive Function
+
+opt_alpha_3 = 1;
+output = ['optimal_alpha = ',num2str(opt_alpha_3)];
+disp(output)
+
+opt_gamma_3 = 0.0023;
+output = ['optimal_gamma = ',num2str(opt_gamma_3)];
+disp(output)
+
+alpha_3_1 = min([0.8*opt_alpha_3,1]);
+alpha_3_2 = min([1.2*opt_alpha_3,1]);
+gamma_3_1 = 0.8*opt_gamma_3;
+gamma_3_2 = 1.2*opt_gamma_3;
+
+
+[reconstructed_image_3, obj_fun_3] = reconstruct_3(X_init,Y,M,opt_alpha_3,opt_gamma_3);
+[im1, ~] = reconstruct_3(X_init,Y,M,alpha_3_1,opt_gamma_3);
+[im2, ~] = reconstruct_3(X_init,Y,M,alpha_3_2,opt_gamma_3);
+[im3, ~] = reconstruct_3(X_init,Y,M,opt_alpha_3,gamma_3_1);
+[im4, ~] = reconstruct_3(X_init,Y,M,opt_alpha_3,gamma_3_2);
+
+opt_rrmse_3 = RRMSE(reconstructed_image_3,A);
+rrmse_3_1 = RRMSE(im1,A);
+rrmse_3_2 = RRMSE(im2,A);
+rrmse_3_3 = RRMSE(im3,A);
+rrmse_3_4 = RRMSE(im4,A);
+
+output = ['RRMSE(optimal_alpha,optimal_gamma) = ',num2str(opt_rrmse_3)];
+disp(output)
+output = ['RRMSE(0.8*optimal_alpha,optimal_gamma) = ',num2str(rrmse_3_1)];
+disp(output)
+output = ['RRMSE(1.2*optimal_alpha,optimal_gamma) = ',num2str(rrmse_3_2)];
+disp(output)
+output = ['RRMSE(optimal_alpha,0.8*optimal_gamma) = ',num2str(rrmse_3_3)];
+disp(output)
+output = ['RRMSE(optimal_alpha,1.2*optimal_gamma) = ',num2str(rrmse_3_4)];
+disp(output)
+
+%% Displaying the Images
+
+figure();
+imshow(A)
+title('Noiseless Image')
+
+figure();
+imshow(abs(X_init))
+title('InverseFourier-kspaceData')
+
+figure();
+imshow(abs(reconstructed_image_1))
+title('Reconstructed Image using Quadratic Prior')
+
+figure();
+imshow(abs(reconstructed_image_2))
+title('Reconstructed Image using Huber Prior')
+
+figure();
+imshow(abs(reconstructed_image_3))
+title('Reconstructed Image using Discontinuity Adaptive Prior')
+
+%% Plotting the objective functions
+
+figure();
+plot(obj_fun_1)
+title('Quadratic Prior')
+
+figure();
+plot(obj_fun_2)
+title('Huber Prior')
+
+figure();
+plot(obj_fun_3)
+title('Discontinuity Adaptive Prior')
+##### SOURCE END #####
+--></body></html>

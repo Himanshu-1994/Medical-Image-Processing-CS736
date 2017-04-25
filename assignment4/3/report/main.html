@@ -1,0 +1,295 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Que3</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-03-25"><meta name="DC.source" content="main.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Que3</h1><pre class="codeinput">close <span class="string">all</span>;
+clear;
+clc;
+</pre><pre class="codeinput">S0 = 1;
+b = 0.1;
+g = [1,0;0.866,0.5;0.5,0.866;0,1;-0.5,0.866;-0.866,0.5]';
+Sg = [0.5045-0.0217i;0.6874+0.0171i;0.3632+0.1789i;0.3483+0.1385i;0.2606-0.0675i;0.2407+0.1517i]';
+
+f = g.*g;
+x_s = f(1,:);
+y_s = f(2,:);
+x_y  = g(1,:).*g(2,:);
+rng(2);
+iter = 1;
+max_iter = 100;
+L = [rand(1),0;rand(1),rand(1)];
+B = [L(1);L(2);L(4)];
+J = zeros(6,3);
+step = 0.1;
+lambda = 0.05;
+change = 1;
+D_val = zeros(4,100);
+objective = zeros(100);
+
+<span class="keyword">while</span> change &gt; 1e-3
+
+    e = exp(-0.1*diag(g'*(L*L')*g));
+    r = abs(Sg)'-e;
+    J(:,1) = 0.2*((x_s*B(1)+x_y*B(2)))'.*e;
+    J(:,2) = 0.2*(x_y*B(1)+y_s*B(2))'.*e;
+    J(:,3) = 0.2*(y_s*B(3))'.*e;
+
+    obj = (r'*r);
+    objective(iter) = obj;
+    Z = J'*J;
+    B_new = B-step*((Z+lambda*diag(diag(Z)))\(J'*r));
+
+    change = norm(B_new-B);
+    B = B_new;
+    B(1) = max(B(1),0);
+    B(3) = max(B(3),0);
+    L = [B(1),0;B(2),B(3)];
+    iter = iter+1;
+
+    D = L*L';
+    D_val(:,iter) = D(:);
+
+    <span class="keyword">if</span> iter &gt;= max_iter
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+error = abs(Sg)'-exp(-0.1*diag(g'*(L*L')*g));
+mse = sum((error).^2);
+D = L*L';
+[V,E] = eig(D);
+
+V_max = V(:,2);
+ratio = E(2,2)/E(1,1);
+
+figure();
+plot(1:iter,log(objective(1:iter)));
+xlabel(<span class="string">'Iteration'</span>);
+ylabel(<span class="string">'Log(Obj)'</span>);
+title(<span class="string">'Log objective vs iteration'</span>);
+
+figure();
+
+subplot(2,2,1);
+plot(1:iter,D_val(1,1:iter));
+xlabel(<span class="string">'iteration'</span>);
+ylabel(<span class="string">'value'</span>);
+title(<span class="string">'D(1,1)'</span>);
+
+subplot(2,2,2);
+plot(1:iter,D_val(2,1:iter));
+xlabel(<span class="string">'iteration'</span>);
+ylabel(<span class="string">'value'</span>);
+title(<span class="string">'D(1,2)'</span>);
+
+subplot(2,2,3);
+plot(1:iter,D_val(3,1:iter));
+xlabel(<span class="string">'iteration'</span>);
+ylabel(<span class="string">'value'</span>);
+title(<span class="string">'D(1,3)'</span>);
+
+subplot(2,2,4);
+plot(1:iter,D_val(4,1:iter));
+xlabel(<span class="string">'iteration'</span>);
+ylabel(<span class="string">'value'</span>);
+title(<span class="string">'D(1,4'</span>);
+
+disp(<span class="string">'Mean Square Error is '</span>);
+disp(obj);
+
+disp(<span class="string">'Matrix D is'</span>);
+disp(D);
+disp(<span class="string">'Direction of maximum Diffusion is'</span>);
+disp(V_max);
+
+disp(<span class="string">'Ratio of diffusion in principal direction to orthogonal direction is = '</span>);
+disp(ratio);
+</pre><pre class="codeoutput">Mean Square Error is 
+    0.0166
+
+Matrix D is
+    6.5750   -3.8776
+   -3.8776   11.8224
+
+Direction of maximum Diffusion is
+   -0.4688
+    0.8833
+
+Ratio of diffusion in principal direction to orthogonal direction is = 
+    3.0731
+
+</pre><img vspace="5" hspace="5" src="main_01.png" alt=""> <img vspace="5" hspace="5" src="main_02.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Que3
+
+close all;
+clear;
+clc;
+
+%%
+S0 = 1;
+b = 0.1;
+g = [1,0;0.866,0.5;0.5,0.866;0,1;-0.5,0.866;-0.866,0.5]';
+Sg = [0.5045-0.0217i;0.6874+0.0171i;0.3632+0.1789i;0.3483+0.1385i;0.2606-0.0675i;0.2407+0.1517i]'; 
+
+f = g.*g;
+x_s = f(1,:);
+y_s = f(2,:);
+x_y  = g(1,:).*g(2,:);
+rng(2);
+iter = 1;
+max_iter = 100;
+L = [rand(1),0;rand(1),rand(1)];
+B = [L(1);L(2);L(4)];
+J = zeros(6,3);
+step = 0.1;
+lambda = 0.05;
+change = 1;
+D_val = zeros(4,100);
+objective = zeros(100); 
+
+while change > 1e-3
+    
+    e = exp(-0.1*diag(g'*(L*L')*g));
+    r = abs(Sg)'-e;
+    J(:,1) = 0.2*((x_s*B(1)+x_y*B(2)))'.*e;
+    J(:,2) = 0.2*(x_y*B(1)+y_s*B(2))'.*e;
+    J(:,3) = 0.2*(y_s*B(3))'.*e;
+   
+    obj = (r'*r);
+    objective(iter) = obj; 
+    Z = J'*J;
+    B_new = B-step*((Z+lambda*diag(diag(Z)))\(J'*r));
+    
+    change = norm(B_new-B);
+    B = B_new;
+    B(1) = max(B(1),0);
+    B(3) = max(B(3),0);
+    L = [B(1),0;B(2),B(3)];
+    iter = iter+1;
+    
+    D = L*L';        
+    D_val(:,iter) = D(:);
+    
+    if iter >= max_iter
+        break;
+    end
+end
+
+error = abs(Sg)'-exp(-0.1*diag(g'*(L*L')*g));
+mse = sum((error).^2);
+D = L*L';
+[V,E] = eig(D);
+
+V_max = V(:,2);
+ratio = E(2,2)/E(1,1);
+
+figure();  
+plot(1:iter,log(objective(1:iter)));
+xlabel('Iteration');
+ylabel('Log(Obj)');
+title('Log objective vs iteration');
+
+figure();
+
+subplot(2,2,1);
+plot(1:iter,D_val(1,1:iter));
+xlabel('iteration');
+ylabel('value');
+title('D(1,1)');
+
+subplot(2,2,2);
+plot(1:iter,D_val(2,1:iter));
+xlabel('iteration');
+ylabel('value');
+title('D(1,2)');
+
+subplot(2,2,3);
+plot(1:iter,D_val(3,1:iter));
+xlabel('iteration');
+ylabel('value');
+title('D(1,3)');
+
+subplot(2,2,4);
+plot(1:iter,D_val(4,1:iter));
+xlabel('iteration');
+ylabel('value');
+title('D(1,4');
+
+disp('Mean Square Error is ');
+disp(obj);
+
+disp('Matrix D is');
+disp(D);
+disp('Direction of maximum Diffusion is');
+disp(V_max);
+
+disp('Ratio of diffusion in principal direction to orthogonal direction is = ');
+disp(ratio);
+
+##### SOURCE END #####
+--></body></html>
