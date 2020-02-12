@@ -1,4 +1,4 @@
-# Medical-Image-Processing-CS736
+# Medical-Image-Processing - CS736 - IIT Bombay
 
 * Assignment 1 : Shape Analysis
 * Assignment 2 : CT Imaging
